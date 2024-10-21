@@ -26,3 +26,13 @@ class UserCreateView(APIView):
       return Response({ "Error": "Internal server error "}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except:
       return Response({ "Error": "Error creating user"}, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserDeleteView(APIView):
+  def delete(self, request, pk):
+    try: 
+      user = User.objects.get(id=pk)
+      if user:
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except:
+      return Response({ "Error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
