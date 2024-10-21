@@ -1,10 +1,15 @@
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import User
 from .serializers import UserSerializer
 
-@api_view(['GET'])
-def get_user(request): 
-  return Response(UserSerializer({ 'name': "Riam", 'email': "riam@gmail.com", 'password': '1234' }))
+class UserView(APIView):
+  def get(self, request, pk): 
+    try:
+      user_data = User.objects.get(id=pk)
+      serializer = UserSerializer(user_data, context={ 'request': request })
+      return Response(serializer.data)
+    except:
+      return Response({ "Error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
