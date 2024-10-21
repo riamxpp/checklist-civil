@@ -36,3 +36,18 @@ class UserDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except:
       return Response({ "Error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+class UserUpdateView(APIView):
+  def put(self, request, pk):
+    try:
+      user = User.objects.get(id=pk)
+      serialize = UserSerializer(user, data=request.data, partial=True)
+      
+      if serialize.is_valid():
+        serialize.save()
+        return Response(serialize.data)
+      
+      return Response(serialize.errors, status=status.HTTP_400_BAD_REQUEST)
+    except:
+      return Response({ "Error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
+  
