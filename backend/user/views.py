@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.hashers import make_password
 
 from .models import User
 from .serializers import UserSerializer
@@ -17,6 +18,10 @@ class UserDetaillView(APIView):
 class UserCreateView(APIView):
   def post(self, request):
     try:
+      password = request.data.get('password')
+      if password:
+        request.data['password'] = make_password(password)
+
       serializer = UserSerializer(data=request.data)
       
       if serializer.is_valid():
