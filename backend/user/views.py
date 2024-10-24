@@ -31,8 +31,11 @@ class UserCreateView(APIView):
       serializer = UserSerializer(data=request.data)
       
       if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+          serializer.save(is_active=True, is_staff=False)
+          return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+          return Response({"Error": "Error savin  g user", "Details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
       return Response({ "Error": "Internal server error "}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except:
@@ -62,29 +65,28 @@ class UserUpdateView(APIView):
     except:
       return Response({ "Error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
   
-# class UserLoginView(APIView):
-#   permission_classes = []
+class UserLoginView(APIView):
+  permission_classes = []
 
-#   def post(self, request):
-#     try:
-#       email = request.data.get('email')
-#       password = request.data.get('password')
+  def post(self, request):
+    try:
+      email = request.data.get('email')
+      password = request.data.get('password')
       
-#       try:
-#         user = UserModel.objects.get(email=email)
-#         print("user: ", user)
-#       except:
-#         return Response({"Error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+      try:
+        user = UserModel.objects.get(email=email)
+        print("user: ", user)
+      except UserModel.DoesNotExist:
+        return Response({"Error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
       
-#       if user.check_password(password):
-#       # user = authenticate(request, email=email, password=password)
-#         refresh = RefreshToken.for_user(user)
-#         return Response({
-#           'refresh': str(refresh), 
-#           'access': str(refresh.access_token)
-#         }, 
-#         status=status.HTTP_200_OK)
+      if check_password(password, user.password):
+        refresh = RefreshToken.for_user(user)
+        return Response({
+          'refresh': str(refresh), 
+          'access': str(refresh.access_token)
+        }, 
+        status=status.HTTP_200_OK)
 
-#       return Response({"Error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except Exception as e:
-#       return Response({ "Error": "User not found", "Details": str(e)}, status=status.HTTP_404_NOT_FOUND)
+      return Response({"Error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+      return Response({ "Error": "User not found", "Details": str(e)}, status=status.HTTP_404_NOT_FOUND)
