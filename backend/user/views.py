@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class UserDetaillView(APIView):
+  permission_classes = []
+
   def get(self, request, pk): 
     try:
       user_data = UserModel.objects.get(id=pk)
@@ -42,6 +44,8 @@ class UserCreateView(APIView):
       return Response({ "Error": "Error creating user"}, status=status.HTTP_400_BAD_REQUEST)
     
 class UserDeleteView(APIView):
+  permission_classes = []
+
   def delete(self, request, pk):
     try: 
       user = UserModel.objects.get(id=pk)
@@ -52,6 +56,8 @@ class UserDeleteView(APIView):
       return Response({ "Error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
 class UserUpdateView(APIView):
+  permission_classes = []
+
   def put(self, request, pk):
     try:
       user = UserModel.objects.get(id=pk)
@@ -75,7 +81,6 @@ class UserLoginView(APIView):
       
       try:
         user = UserModel.objects.get(email=email)
-        print("user: ", user)
       except UserModel.DoesNotExist:
         return Response({"Error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
       
